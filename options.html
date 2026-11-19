@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Auto Tab Groups</title>
+    <style>
+      :root { color-scheme: light dark; font: 15px/1.5 -apple-system, BlinkMacSystemFont, sans-serif; }
+      main { max-width: 36rem; margin: 3rem auto; padding: 0 1rem; }
+      h1 { font-size: 1.5rem; margin: 0 0 1rem; }
+      h2 { font-size: 1rem; margin: 2rem 0 0.4rem; }
+      input[type='password'], select, textarea {
+        font: inherit; width: 100%; box-sizing: border-box; padding: 0.5rem 0.65rem;
+        border: 1px solid #8c959f; border-radius: 6px; background: transparent; color: inherit;
+      }
+      textarea { min-height: 5rem; resize: vertical; }
+      label.check { display: flex; gap: 0.5rem; align-items: baseline; }
+      #msg { min-height: 1.5em; margin: 0.4rem 0 0; }
+      .ok { color: #1a7f37; } .err { color: #cf222e; }
+      @media (prefers-color-scheme: dark) { .ok { color: #3fb950; } .err { color: #f85149; } }
+      small, .hint { opacity: 0.75; font-size: 0.9em; }
+      kbd { font: inherit; border: 1px solid #8c959f; border-radius: 4px; padding: 0 0.3em; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Auto Tab Groups</h1>
+      <p>
+        Click the toolbar icon or press <kbd>⌥⇧G</kbd> to sort a window's ungrouped tabs. Tabs already in a group are
+        never moved. Nothing changes until you ask, unless you turn on automatic placement below.
+      </p>
+
+      <h2>Anthropic API key</h2>
+      <input id="apiKey" type="password" placeholder="Paste key (⌘V); it saves by itself" autocomplete="off" spellcheck="false" autofocus />
+      <p id="msg"></p>
+      <p class="hint">
+        <a href="https://console.anthropic.com/settings/keys" target="_blank">Create a key</a> just for this extension, ideally in a
+        workspace with a spend limit. It's stored in this Chrome profile only.
+      </p>
+
+      <h2>Model</h2>
+      <select id="model">
+        <option value="claude-haiku-5-5">Claude Haiku 5.5: fast, about $0.001 per 60 tabs</option>
+        <option value="claude-sonnet-5-5">Claude Sonnet 5.5: smarter, about $0.02 per 60 tabs</option>
+      </select>
+
+      <h2>Automatic</h2>
+      <label class="check"><input id="auto" type="checkbox" /> Place new tabs automatically</label>
+      <p class="hint">Off by default. When on, each new tab joins a group once it has loaded and you've switched away from it.</p>
+
+      <h2>Your rules</h2>
+      <textarea id="rules" placeholder="Optional. For example:&#10;Keep everything about my thesis together.&#10;Put recipes in a group called Cooking."></textarea>
+
+      <h2>Never send these sites</h2>
+      <textarea id="blocked" placeholder="One domain per line, e.g.&#10;mybank.com&#10;myhealthinsurer.com"></textarea>
+      <p class="hint">
+        Sent to Anthropic: each tab's title and its address without the part after <code>?</code> or <code>#</code>. Never sent:
+        these sites (and their subdomains), pinned tabs, incognito tabs, and browser pages like <code>chrome://</code>.
+      </p>
+
+      <h2>Spend</h2>
+      <p id="usage" class="hint">No calls yet.</p>
+    </main>
+    <script src="options.js"></script>
+  </body>
+</html>
