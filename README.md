@@ -2,7 +2,7 @@
 
 Chrome extension that sorts your tabs into tab groups with Claude, using your own Anthropic API key.
 
-- **Sort a window:** click the toolbar icon or press <kbd>⌥⇧G</kbd>. Every ungrouped tab goes into an existing group, a new group, or stays put if nothing fits.
+- **Sort a window:** click the toolbar icon or press <kbd>⌥⇧G</kbd>. Every ungrouped tab goes into an existing group or a new one. Tabs that fit nowhere (lone tabs, browser pages like New Tab, sites you've excluded) move to the end of the window.
 - **Automatic (off by default):** turn it on in the settings page to have new tabs placed once they've loaded and you've switched away from them, so nothing moves under your cursor. A tab left on its own gets another chance when a related tab shows up.
 - **Hands off:**
   - Tabs already in a group are never moved.

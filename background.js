@@ -185,6 +185,14 @@ async function sortWindow(windowId, candidates, cfg) {
   return placed;
 }
 
+// Tabs left out of every group (lone tabs, browser pages, blocked sites) go to the end of the window, in their current order.
+async function moveLooseToEnd(windowId) {
+  const loose = (await chrome.tabs.query({ windowId, pinned: false }))
+    .filter((t) => t.groupId === -1)
+    .sort((a, b) => a.index - b.index);
+  if (loose.length) await chrome.tabs.move(loose.map((t) => t.id), { index: -1 }).catch(() => {});
+}
+
 // ---------- manual: toolbar click or ⌥⇧G sorts every ungrouped tab in the window ----------
 
 async function sortNow(windowId) {
@@ -193,12 +201,16 @@ async function sortNow(windowId) {
   if (!cfg.apiKey || authError) return chrome.runtime.openOptionsPage();
   const blocked = blockedList(cfg.blocked);
   const tabs = (await chrome.tabs.query({ windowId })).filter((t) => t.groupId === -1 && sendable(t, blocked));
-  if (!tabs.length) return flash('–', 'No ungrouped tabs to sort');
+  if (!tabs.length) {
+    await moveLooseToEnd(windowId);
+    return flash('–', 'No ungrouped tabs to sort');
+  }
   setBadge('…', '#57606a', 'Sorting…');
   try {
     const placed = await sortWindow(windowId, tabs, cfg);
+    await moveLooseToEnd(windowId);
     await chrome.storage.local.set({ lastError: null });
-    await forget([...placed]);
+    await forget(tabs.map((t) => t.id)); // every tab Claude just saw is settled, grouped or not
     flash(placed.size ? '✓' : '–', placed.size ? `Grouped ${placed.size} tabs` : 'Nothing worth grouping');
   } catch (e) {
     showError(e);
@@ -298,6 +310,7 @@ chrome.action.onClicked.addListener((tab) => serial(() => sortNow(tab.windowId))
 chrome.tabs.onCreated.addListener((tab) => {
   if (tab.pinned || tab.groupId !== -1 || tab.incognito) return;
   serial(async () => {
+    if (!(await settings()).auto) return; // only tabs opened while automatic placement is on
     const { pending = {} } = await chrome.storage.session.get('pending');
     pending[tab.id] = Date.now();
     await chrome.storage.session.set({ pending });
